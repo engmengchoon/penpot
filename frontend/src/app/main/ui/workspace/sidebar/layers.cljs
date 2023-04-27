@@ -14,6 +14,7 @@
    [app.main.refs :as refs]
    [app.main.store :as st]
    [app.main.ui.components.shape-icon-refactor :as sic]
+   [app.main.ui.components.title-bar :refer [title-bar]]
    [app.main.ui.context :as ctx]
    [app.main.ui.hooks :as hooks]
    [app.main.ui.icons :as i]
@@ -270,6 +271,8 @@
                (if new-css-system
                  i/delete-text-refactor
                  i/exclude)])]]
+
+
           [:button {:class (dom/classnames (css :close-search) new-css-system)
                     :on-click toggle-search}
            (if new-css-system
@@ -397,20 +400,17 @@
               [:span {:on-click (add-filter :text)} i/text (tr "workspace.sidebar.layers.texts")]
               [:span {:on-click (add-filter :image)} i/image (tr "workspace.sidebar.layers.images")]
               [:span {:on-click (add-filter :shape)} i/curve (tr "workspace.sidebar.layers.shapes")]]))]
-        [:div {:class (if new-css-system
-                        (dom/classnames (css :tool-window-bar) true)
-                        (dom/classnames :tool-window-bar true))}
-         [:span {:class (if new-css-system
-                          (dom/classnames (css :page-name) true)
-                          (dom/classnames :page-name true))}
-          (:name page)]
-         [:button {:class (if new-css-system
-                            (dom/classnames (css :icon-search) true)
-                            (dom/classnames :icon-search true))
-                   :on-click toggle-search}
-          (if new-css-system
-            i/search-refactor
-            i/search)]]))]))
+
+        (if new-css-system
+          [:& title-bar {:collapse-button? false
+                         :title            (:name page)
+                         :button-action    toggle-search
+                         :button-icon      i/search-refactor}]
+          [:div.tool-window-bar
+           [:span.page-name
+            (:name page)]
+           [:button.icon-search {:on-click toggle-search}
+            i/search]])))]))
 
 (mf/defc layers-toolbox
   {:wrap [mf/memo]}

@@ -11,7 +11,8 @@
    [app.main.data.workspace :as dw]
    [app.main.refs :as refs]
    [app.main.store :as st]
-   [app.main.ui.components.tab-container :refer [tab-container tab-element]]
+   [app.main.ui.components.tab-container :refer [tab-container tab-element]] 
+   [app.main.ui.components.tabs-container :refer [tabs-container tabs-element]]
    [app.main.ui.context :as ctx]
    [app.main.ui.hooks.resize :refer [use-resize-hook]]
    [app.main.ui.icons :as i]
@@ -102,20 +103,20 @@
              :aria-label (tr "workspace.sidebar.collapse")}
             i/arrow-slide]
 
-           [:& tab-container
+           [:& tabs-container
             {:on-change-tab on-tab-change
              :selected section
              :shortcuts? shortcuts?
              :collapsable? true
              :handle-collapse handle-collapse}
 
-            [:& tab-element {:id :layers :title (tr "workspace.sidebar.layers")}
+            [:& tabs-element {:id :layers :title (tr "workspace.sidebar.layers")}
              [:div {:class (dom/classnames :layers-tab true)}
               [:& sitemap {:layout layout}]
               [:& layers-toolbox {:size-parent size}]]]
 
             (when-not ^boolean mode-inspect?
-              [:& tab-element {:id :assets :title (tr "workspace.toolbar.assets")}
+              [:& tabs-element {:id :assets :title (tr "workspace.toolbar.assets")}
                [:& assets-toolbox]])]]))]]))
 
 ;; --- Right Sidebar (Component)

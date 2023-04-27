@@ -1,0 +1,108 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+//
+// Copyright (c) KALEIDOS INC
+
+@import "refactor/common-refactor.scss";
+
+.assets-bar {
+  padding: $s-12;
+  .libraries-button {
+    @include flexCenter;
+    @include buttonStyle;
+    @include tabTitleTipography;
+    gap: $s-2;
+    height: $s-32;
+    width: 100%;
+    border: $s-2 solid var(--button-border);
+    border-radius: $s-8;
+    margin-bottom: $s-4;
+    .libraries-icon {
+      @include flexCenter;
+      width: $s-24;
+      height: $s-24;
+      svg {
+        fill: white; // TODO remove when icon changes
+        @extend .button-icon;
+      }
+    }
+  }
+  .filter-button {
+    @include flexCenter;
+    @include buttonStyle;
+    height: $s-32;
+    width: $s-32;
+    margin: 0;
+    border: 1px solid var(--color-background-tertiary);
+    border-radius: $br-8 $br-2 $br-2 $br-8;
+    background-color: var(--color-background-tertiary);
+    svg {
+      height: $s-16;
+      width: $s-16;
+      stroke: var(--icon-foreground);
+    }
+    &:focus {
+      border: 1px solid var(--input-border-color-focus);
+      outline: 0;
+      background-color: var(--input-background-color-active);
+      color: var(--input-foreground-color-active);
+      svg {
+        background-color: var(--input-background-color-active);
+      }
+    }
+    &:hover {
+      border: 1px solid var(--input-background-color-hover);
+      background-color: var(--input-background-color-hover);
+      svg {
+        background-color: var(--input-background-color-hover);
+        stroke: var(--button-foreground-hover);
+      }
+    }
+  }
+  .search-block {
+    background-color: green;
+    @include flexCenter;
+    height: $s-32;
+    width: 100%;
+    border: 1px solid var(--color-background-tertiary);
+    border-radius: $br-2 $br-8 $br-8 $br-2;
+    background-color: var(--color-background-tertiary);
+    .search-input {
+      width: 100%;
+      margin: $s-8;
+      border: 0;
+      background-color: var(--input-background-color);
+      font-size: $fs-12;
+      color: var(--input-foreground-color);
+      &:focus {
+        outline: none;
+      }
+    }
+    &:hover {
+      border: 1px solid var(--input-background-color-hover);
+      background-color: var(--input-background-color-hover);
+      input {
+        background-color: var(--input-background-color-hover);
+      }
+    }
+    &:focus-within {
+      background-color: var(--input-background-color-active);
+      color: var(--input-foreground-color-active);
+      border: 1px solid var(--input-border-color-focus);
+      input {
+        background-color: var(--input-background-color-active);
+      }
+    }
+    .close-icon {
+      @include flexCenter;
+      width: $s-24;
+      height: $s-24;
+      border-radius: $br-8;
+      margin-right: $s-4;
+      svg {
+        @extend .button-icon;
+      }
+    }
+  }
+}

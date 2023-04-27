@@ -5,6 +5,7 @@
 ;; Copyright (c) KALEIDOS INC
 
 (ns app.main.ui.workspace.sidebar.assets
+  (:require-macros [app.main.style :refer [css]])
   (:require
    [app.common.data :as d]
    [app.common.data.macros :as dm]
@@ -201,8 +202,8 @@
     (when (not (dnd/from-child? event))
       (reset! dragging* false)
       (when
-          (and (not (contains? selected (:id asset)))
-               (every? #(= % (:path asset)) selected-paths))
+       (and (not (contains? selected (:id asset)))
+            (every? #(= % (:path asset)) selected-paths))
         (let [components-to-group (conj selected-full asset)
               create-typed-assets-group (partial create-typed-assets-group components-to-group)]
           (modal/show! :name-group-dialog {:accept create-typed-assets-group}))))))
@@ -824,7 +825,7 @@
                     (when-not multi-assets?
                       [(tr "workspace.assets.group") on-group])
                     (when (and components-v2 (not multi-assets?))
-                        [(tr "workspace.shape.menu.show-main") on-show-main])]}])]]))
+                      [(tr "workspace.shape.menu.show-main") on-show-main])]}])]]))
 
 
 ;; ---- Graphics section ----
@@ -877,9 +878,7 @@
         on-asset-click
         (mf/use-fn
          (mf/deps object-id on-asset-click)
-         (partial on-asset-click object-id nil))
-
-        ]
+         (partial on-asset-click object-id nil))]
 
     [:div {:ref item-ref
            :class-name (dom/classnames
@@ -1574,16 +1573,16 @@
              (on-clear-selection)
              (let [undo-id (js/Symbol)]
                (st/emit! (dwu/start-undo-transaction undo-id))
-             (run! st/emit!
-                   (->> colors
-                        (filter #(if multi-colors?
-                                   (contains? selected (:id %))
-                                   (= color-id (:id %))))
-                        (map #(dwl/update-color
-                               (assoc % :name
-                                      (add-group % group-name))
-                               file-id))))
-             (st/emit! (dwu/commit-undo-transaction undo-id))))))
+               (run! st/emit!
+                     (->> colors
+                          (filter #(if multi-colors?
+                                     (contains? selected (:id %))
+                                     (= color-id (:id %))))
+                          (map #(dwl/update-color
+                                 (assoc % :name
+                                        (add-group % group-name))
+                                 file-id))))
+               (st/emit! (dwu/commit-undo-transaction undo-id))))))
 
         rename-group
         (mf/use-fn
@@ -1728,9 +1727,7 @@
         on-asset-click
         (mf/use-fn
          (mf/deps typography apply-typography on-asset-click)
-         (partial on-asset-click typography-id apply-typography))
-
-        ]
+         (partial on-asset-click typography-id apply-typography))]
 
     [:div.typography-container {:ref item-ref
                                 :draggable (and (not read-only?) (not open?))
@@ -1749,8 +1746,7 @@
        :editing? editing?
        :focus-name? rename?
        :external-open* open*
-       :file-id file-id
-       }]
+       :file-id file-id}]
 
      (when ^boolean dragging?
        [:div.dragging])]))
@@ -2095,8 +2091,7 @@
         (mf/use-fn
          (mf/deps file-id open?)
          (fn []
-           (st/emit! (dw/set-assets-section-open file-id :library (not open?)))))
-        ]
+           (st/emit! (dw/set-assets-section-open file-id :library (not open?)))))]
 
     [:div.tool-window-bar.library-bar
      {:on-click toggle-open}
@@ -2168,7 +2163,7 @@
         show-colors?       (and (or (= filters-section :all)
                                     (= filters-section :colors))
                                 (or (> (count colors) 0)
-                                         (str/empty? filters-term)))
+                                    (str/empty? filters-term)))
         show-typography?   (and (or (= filters-section :all)
                                     (= filters-section :typographies))
                                 (or (pos? (count typographies))
@@ -2360,9 +2355,7 @@
         (mf/use-fn
          (mf/deps file-id)
          (fn []
-           (st/emit! (dw/unselect-all-assets file-id))))
-
-        ]
+           (st/emit! (dw/unselect-all-assets file-id))))]
 
     [:div.tool-window {:on-context-menu dom/prevent-default
                        :on-click unselect-all}
@@ -2429,19 +2422,23 @@
    ::mf/wrap-props false}
   []
   (let [read-only? (mf/use-ctx ctx/workspace-read-only?)
+        new-css-system       (mf/use-ctx ctx/new-css-system)
         filters*   (mf/use-state
                     {:term ""
                      :section :all
                      :ordering :asc
-                     :list-style :thumbs})
+                     :list-style :thumbs
+                     :open-menu false})
         filters    (deref filters*)
         term       (:term filters)
+        menu-open? (:open-menu filters)
 
         toggle-ordering
         (mf/use-fn #(swap! filters* update :ordering toggle-values [:asc :desc]))
 
         toggle-list-style
         (mf/use-fn #(swap! filters* update :list-style toggle-values [:thumbs :list]))
+
 
         on-search-term-change
         (mf/use-fn
@@ -2471,45 +2468,80 @@
              (when ^boolean esc?   (dom/blur! node)))))
 
         show-libraries-dialog
-        (mf/use-fn #(modal/show! :libraries-dialog {}))]
+        (mf/use-fn #(modal/show! :libraries-dialog {}))
 
-    [:div.assets-bar
-     [:div.tool-window
-      [:div.tool-window-content
-       [:div.assets-bar-title
-        (tr "workspace.assets.assets")
+        on-open-menu
+        (mf/use-fn  #(swap! filters* update :open-menu not))]
 
-        (when-not ^boolean read-only?
-          [:div.libraries-button {:on-click show-libraries-dialog}
-           i/text-align-justify
-           (tr "workspace.assets.libraries")])]
+    (if new-css-system
+      [:div  {:class  (dom/classnames (css :assets-bar) true)}
 
-       [:div.search-block
-        [:input.search-input
-         {:placeholder (tr "workspace.assets.search")
-          :type "text"
-          :value term
-          :on-change on-search-term-change
-          :on-key-down handle-key-down}]
+       (when-not read-only?
+         [:div {:class  (dom/classnames (css :libraries-button) true)
+                :on-click #(modal/show! :libraries-dialog {})}
+          [:span {:class (dom/classnames (css :libraries-icon) true)}
+           i/text-align-justify]
+          (tr "workspace.assets.libraries")])
 
-        (if ^boolean (str/empty? term)
-          [:div.search-icon
-           i/search]
-          [:div.search-icon.close
-           {:on-click on-search-clear-click}
-           i/close])]
+       [:div {:class  (dom/classnames (css :search-wrapper) true)}
+        [:button
+         {:on-click on-open-menu
+          :class (dom/classnames (css :filter-button) true)}
+         i/filter-refactor]
+        [:div {:class  (dom/classnames (css :search-block) true)}
 
-       [:select.input-select {:value (:section filters)
-                              :on-change on-section-filter-change}
-        [:option {:value ":all"} (tr "workspace.assets.box-filter-all")]
-        [:option {:value ":components"} (tr "workspace.assets.components")]
-        [:option {:value ":graphics"} (tr "workspace.assets.graphics")]
-        [:option {:value ":colors"} (tr "workspace.assets.colors")]
-        [:option {:value ":typographies"} (tr "workspace.assets.typography")]]]]
+         [:input
+          {:class  (dom/classnames (css :search-input) true)
+           :placeholder (tr "workspace.assets.search")
+           :type "text"
+           :value term
+           :on-change on-search-term-change
+           :on-key-down handle-key-down}]
+         (when-not (str/empty? term)
+           [:div
+            {:class  (dom/classnames (css :close-icon) true)
+             :on-click on-search-clear-click}
+            i/delete-text-refactor])]]
+       (when menu-open?
+         [:div "eyyy"])]
 
-     [:& (mf/provider ctx:filters) {:value filters}
-      [:& (mf/provider ctx:toggle-ordering) {:value toggle-ordering}
-       [:& (mf/provider ctx:toggle-list-style) {:value toggle-list-style}
-        [:div.libraries-wrapper
-         [:& assets-local-library {:filters filters}]
-         [:& assets-libraries {:filters filters}]]]]]]))
+
+      [:div.assets-bar
+       [:div.tool-window
+        [:div.tool-window-content
+         [:div.assets-bar-title
+          (tr "workspace.assets.assets")
+
+          (when-not ^boolean read-only?
+            [:div.libraries-button {:on-click show-libraries-dialog}
+             i/text-align-justify
+             (tr "workspace.assets.libraries")])]
+         [:div.search-block
+          [:input.search-input
+           {:placeholder (tr "workspace.assets.search")
+            :type "text"
+            :value term
+            :on-change on-search-term-change
+            :on-key-down handle-key-down}]
+
+          (if ^boolean (str/empty? term)
+            [:div.search-icon
+             i/search]
+            [:div.search-icon.close
+             {:on-click on-search-clear-click}
+             i/close])]
+
+         [:select.input-select {:value (:section filters)
+                                :on-change on-section-filter-change}
+          [:option {:value ":all"} (tr "workspace.assets.box-filter-all")]
+          [:option {:value ":components"} (tr "workspace.assets.components")]
+          [:option {:value ":graphics"} (tr "workspace.assets.graphics")]
+          [:option {:value ":colors"} (tr "workspace.assets.colors")]
+          [:option {:value ":typographies"} (tr "workspace.assets.typography")]]]]
+
+       [:& (mf/provider ctx:filters) {:value filters}
+        [:& (mf/provider ctx:toggle-ordering) {:value toggle-ordering}
+         [:& (mf/provider ctx:toggle-list-style) {:value toggle-list-style}
+          [:div.libraries-wrapper
+           [:& assets-local-library {:filters filters}]
+           [:& assets-libraries {:filters filters}]]]]]])))

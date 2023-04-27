@@ -249,10 +249,9 @@
           [:div
            {:class  (dom/classnames (css :view-only-mode) true)}
            (tr "labels.view-only")]
-          [:*
-           [:button {:class (dom/classnames (css :add-page) true)
-                     :on-click create}
-            i/add-refactor]])]
+          [:button {:class (dom/classnames (css :add-page) true)
+                    :on-click create}
+           i/add-refactor])]
 
        [:div {:class (dom/classnames (css :tool-window-content) true)}
         [:& pages-list {:file file :key (:id file)}]]

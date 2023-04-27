@@ -15,6 +15,7 @@
   --button-background-focus: var(--color-background-secondary);
   --button-foreground-focus: var(--color-foreground-primary);
   --button-border-focus: var(--color-accent-primary);
+  --button-border: var(--color-background-tertiary);
   --button-foreground-color-disabled: var(--color-background-quaternary);
 
   --icon-foreground: var(--color-foreground-secondary);
@@ -28,6 +29,7 @@
 
   --title-foreground-color: var(--color-foreground-secondary);
   --title-foreground-color-hover: var(--color-foreground-primary);
+  --title-background-color: var(--color-background-primary);
 
   --layer-row-background-color: var(--color-background-primary);
   --layer-row-background-color-hover: var(--color-background-secondary);
