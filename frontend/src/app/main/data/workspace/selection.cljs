@@ -565,7 +565,9 @@
 (defn calc-duplicate-delta
   [obj state objects]
   (let [{:keys [id-original id-duplicated]}
-        (get-in state [:workspace-local :duplicated])]
+        (get-in state [:workspace-local :duplicated])
+        move? (and (cph/frame-shape? obj)
+                   (not (:component-root? obj)))]
     (if (or (and (not= id-original (:id obj))
                  (not= id-duplicated (:id obj)))
             ;; As we can remove duplicated elements may be we can still caching a deleted id
@@ -574,7 +576,7 @@
 
       ;; The default is leave normal shapes in place, but put
       ;; new frames to the right of the original.
-      (if (cph/frame-shape? obj)
+      (if move?
         (gpt/point (+ (:width obj) 50) 0)
         (gpt/point 0 0))
 
@@ -593,6 +595,7 @@
   (ptk/reify ::duplicate-selected
     ptk/WatchEvent
     (watch [it state _]
+      (prn "duplicate-selected" move-delta?)
       (when (or (not move-delta?) (nil? (get-in state [:workspace-local :transform])))
         (let [page     (wsh/lookup-page state)
               objects  (:objects page)
